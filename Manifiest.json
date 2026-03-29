@@ -1,0 +1,22 @@
+{
+  "name": "Mi Liga Básquet - Marcador Profesional",
+  "short_name": "MiLigaBásquet",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#ff6600",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/889/889455.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/192/889/889455.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

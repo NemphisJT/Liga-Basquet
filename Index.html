@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Liga Básquet</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #ff6600;
+            --secondary: #0088ff;
+            --text: #ffffff;
+            --danger: #ff4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background: #000;
+            border-bottom: 3px solid var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .team-box {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            border: 2px solid #333;
+        }
+
+        .team-a { border-top: 5px solid var(--primary); }
+        .team-b { border-top: 5px solid var(--secondary); }
+
+        .score {
+            font-size: 5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: var(--primary);
+            margin: 10px 0;
+            text-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .team-b .score { color: var(--secondary); text-shadow: 0 0 15px rgba(0, 136, 255, 0.3); }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .btn-pts { background: #333; color: white; font-size: 1rem; }
+        .btn-action { 
+            width: 90%; 
+            max-width: 400px; 
+            margin: 10px 0; 
+            padding: 15px; 
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .next-q { background: var(--primary); color: white; }
+        .finish-btn { background: var(--danger); color: white; }
+
+        .stats-section {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 30px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 50px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        th { color: var(--primary); }
+
+        .summary-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>Mi Liga Básquet 🏀</header>
+
+<div class="scoreboard">
+    <div class="team-box team-a">
+        <h3>EQUIPO A</h3>
+        <div id="scoreA" class="score">0</div>
+        <div class="controls">
+            <button class="btn-pts" onclick="addPoint('A', 1)">+1</button>
+            <button class="btn-pts" onclick="addPoint('A', 2)">+2</button>
+            <button class="btn-pts" onclick="addPoint('A', 3)">+3</button>
+        </div>
+    </div>
+    <div class="team-box team-b">
+        <h3>EQUIPO B</h3>
+        <div id="scoreB" class="score">0</div>
+        <div class="controls">
+            <button class="btn-pts" onclick="addPoint('B', 1)">+1</button>
+            <button class="btn-pts" onclick="addPoint('B', 2)">+2</button>
+            <button class="btn-pts" onclick="addPoint('B', 3)">+3</button>
+        </div>
+    </div>
+</div>
+
+<button class="btn-action next-q" onclick="nextQuarter()">Siguiente Cuarto</button>
+<button class="btn-action finish-btn" onclick="finishGame()">Finalizar Partido</button>
+
+<div class="stats-section">
+    <h3>Estadísticas de Liga</h3>
+    <table>
+        <thead>
+            <tr><th>Equipo</th><th>V</th><th>D</th></tr>
+        </thead>
+        <tbody id="leagueTable">
+            <!-- JS llenará esto -->
+        </tbody>
+    </table>
+    <button onclick="resetStats()" style="background:none; color:gray; font-size:0.7rem; margin-top:10px;">Resetear Liga</button>
+</div>
+
+<div id="summary" class="summary-overlay">
+    <h1 id="winnerTitle">GANADOR</h1>
+    <p id="totalScoreText" style="font-size: 1.5rem;"></p>
+    <p id="quartersText"></p>
+    <button class="btn-action next-q" onclick="closeSummary()">Nuevo Partido</button>
+</div>
+
+<script>
+    // Estado del juego actual
+    let currentScoreA = 0;
+    let currentScoreB = 0;
+    let totalScoreA = 0;
+    let totalScoreB = 0;
+    let quartersWonA = 0;
+    let quartersWonB = 0;
+    let quarterCount = 1;
+
+    // Persistencia con localStorage
+    let stats = JSON.parse(localStorage.getItem('basquetStats')) || {
+        teamA: { v: 0, d: 0 },
+        teamB: { v: 0, d: 0 }
+    };
+
+    function updateVisuals() {
+        document.getElementById('scoreA').innerText = currentScoreA;
+        document.getElementById('scoreB').innerText = currentScoreB;
+        renderTable();
+    }
+
+    function addPoint(team, pts) {
+        if(team === 'A') currentScoreA += pts;
+        else currentScoreB += pts;
+        updateVisuals();
+    }
+
+    function nextQuarter() {
+        // Guardar ganador del cuarto
+        if (currentScoreA > currentScoreB) quartersWonA++;
+        else if (currentScoreB > currentScoreA) quartersWonB++;
+        
+        // Acumular total
+        totalScoreA += currentScoreA;
+        totalScoreB += currentScoreB;
+        
+        // Resetear visual
+        currentScoreA = 0;
+        currentScoreB = 0;
+        quarterCount++;
+        alert(`Cuarto ${quarterCount-1} finalizado. Iniciando cuarto ${quarterCount}`);
+        updateVisuals();
+    }
+
+    function finishGame() {
+        // Procesar último cuarto antes de cerrar
+        totalScoreA += currentScoreA;
+        totalScoreB += currentScoreB;
+        if (currentScoreA > currentScoreB) quartersWonA++;
+        else if (currentScoreB > currentScoreA) quartersWonB++;
+
+        let winner = totalScoreA > totalScoreB ? 'Equipo A' : (totalScoreB > totalScoreA ? 'Equipo B' : 'Empate');
+        
+        if(totalScoreA > totalScoreB) {
+            stats.teamA.v++; stats.teamB.d++;
+        } else if(totalScoreB > totalScoreA) {
+            stats.teamB.v++; stats.teamA.d++;
+        }
+
+        localStorage.setItem('basquetStats', JSON.stringify(stats));
+
+        // Mostrar resumen
+        document.getElementById('winnerTitle').innerText = `GANADOR: ${winner}`;
+        document.getElementById('totalScoreText').innerText = `Total: A ${totalScoreA} - ${totalScoreB} B`;
+        document.getElementById('quartersText').innerText = `Cuartos ganados: A(${quartersWonA}) - B(${quartersWonB})`;
+        document.getElementById('summary').style.display = 'flex';
+    }
+
+    function closeSummary() {
+        currentScoreA = 0; currentScoreB = 0;
+        totalScoreA = 0; totalScoreB = 0;
+        quartersWonA = 0; quartersWonB = 0;
+        quarterCount = 1;
+        document.getElementById('summary').style.display = 'none';
+        updateVisuals();
+    }
+
+    function renderTable() {
+        const html = `
+            <tr><td>Equipo A</td><td>${stats.teamA.v}</td><td>${stats.teamA.d}</td></tr>
+            <tr><td>Equipo B</td><td>${stats.teamB.v}</td><td>${stats.teamB.d}</td></tr>
+        `;
+        document.getElementById('leagueTable').innerHTML = html;
+    }
+
+    function resetStats() {
+        if(confirm("¿Borrar historial de la liga?")) {
+            stats = { teamA: { v: 0, d: 0 }, teamB: { v: 0, d: 0 } };
+            localStorage.setItem('basquetStats', JSON.stringify(stats));
+            renderTable();
+        }
+    }
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
+    updateVisuals();
+</script>
+</body>
+</html>
